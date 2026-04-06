@@ -1,70 +1,125 @@
 <!doctype html>
 <html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta
+			name="viewport"
+			content="width=device-width, initial-scale=1.0"
+		/>
+		<title>Chat Test</title>
+	</head>
 
-<head>
-	<meta charset="UTF-8" />
-	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-	<title>Chat Test Mock</title>
-</head>
+	<body>
+		<h1>Chat Test</h1>
 
-<body>
-	<h1>Chat Test Mock</h1>
+		<hr />
 
-	<section id="auth-section">
-		<h2>Auth</h2>
-		<div>
-			<h3>Login</h3>
-			<label for="login-username">Username:</label>
-			<input type="text" id="login-username" />
-			<label for="login-password">Password:</label>
-			<input type="password" id="login-password" />
-			<button id="login-button">Login</button>
+		<div id="user-section">
+			<h2>User Info & Search</h2>
+			<div>
+				<h3>Get Current User</h3>
+				<div id="user-info-display"></div>
+				<button id="get-user-button">Get User Info</button>
+			</div>
+
+			<hr />
+
+			<div>
+				<h3>Search Users</h3>
+				<label for="search-query">Search Name:</label>
+				<input
+					type="text"
+					id="search-query"
+					placeholder="Enter username..."
+				/>
+				<button id="search-button">Search</button>
+				<ul id="search-results-list"></ul>
+			</div>
 		</div>
-		<div>
-			<h3>Signup</h3>
-			<label for="signup-username">Username:</label>
-			<input type="text" id="signup-username" />
-			<label for="signup-password">Password:</label>
-			<input type="password" id="signup-password" />
-			<button id="signup-button">Signup</button>
-		</div>
-	</section>
 
-	<hr />
-
-	<section id="chat-section">
-		<h2>Chat</h2>
-		<div>
-			<h3>Send Message</h3>
-			<label for="message-target-id">Target Room ID (User or Group ID):</label>
-			<input type="text" id="message-target-id" /><br>
-			<input type="file" id="message-file-input" />
-			<label for="message-data">Message / File:</label>
-			<textarea id="message-data" placeholder="Type your message here..."></textarea>
-			<button id="clear-file-button" style="display: none">
-				Clear
-			</button>
-			<button id="send-button">Send</button>
+		<div id="auth-section">
+			<h2>Auth</h2>
+			<div>
+				<h3>Login</h3>
+				<label for="login-username">Username:</label>
+				<input type="text" id="login-username" />
+				<label for="login-password">Password:</label>
+				<input type="password" id="login-password" />
+				<button id="login-button">Login</button>
+			</div>
+			<div>
+				<h3>Signup</h3>
+				<label for="signup-username">Username:</label>
+				<input type="text" id="signup-username" />
+				<label for="signup-password">Password:</label>
+				<input type="password" id="signup-password" />
+				<button id="signup-button">Signup</button>
+			</div>
 		</div>
 
 		<hr />
 
-		<div>
-			<h3>Create Group</h3>
-			<label for="group-users">User IDs (comma-separated, e.g., user2,user3):</label>
-			<input type="text" id="group-users" placeholder="user2,user3" />
-			<button id="create-group-button">Create Group</button>
+		<div id="chat-section">
+			<h2>Chat</h2>
+			<div>
+				<h3>Send Message</h3>
+				<label for="message-target-id"
+					>Target Room ID (User or Group ID):</label
+				>
+				<input type="text" id="message-target-id" /><br />
+				<input type="file" id="message-file-input" />
+				<label for="message-data">Message / File:</label>
+				<textarea
+					id="message-data"
+					placeholder="Type your message here..."
+				></textarea>
+				<button id="clear-file-button" style="display: none">
+					Clear
+				</button>
+				<button id="send-button">Send</button>
+			</div>
+
+			<hr />
+
+			<div>
+				<h3>Create Group</h3>
+				<label for="group-users"
+					>User IDs (comma-separated, e.g., user2,user3):</label
+				>
+				<input
+					type="text"
+					id="group-users"
+					placeholder="user2,user3"
+				/>
+				<button id="create-group-button">Create Group</button>
+			</div>
 		</div>
-	</section>
 
-	<hr />
+		<hr />
 
-	<section id="results">
-		<h3>LocalStorage (messages)</h3>
-		<pre id="local-storage-pane"></pre>
-	</section>
+		<style>
+			.message-block {
+				border: 1px solid #000000;
+				padding: 10px;
+				margin: 10px 0;
+			}
 
-	<script type="module" src="./main.js"></script>
-</body>
+			.message-info {
+				font-size: 0.8em;
+				margin-bottom: 5px;
+			}
 
+			.message-content {
+				font-size: 1em;
+			}
+		</style>
+
+		<div id="results">
+			<h3>LocalStorage (messages)</h3>
+			<button id="clear-messages-button">Clear All Messages</button>
+			<div id="messages-display-panel"></div>
+		</div>
+
+		<script type="module" src="./main.js"></script>
+	</body>
 </html>

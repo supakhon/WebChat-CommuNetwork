@@ -6,7 +6,7 @@ import { SERVER_URL } from "./constant.js";
  * @param {string} username - The username assigned to the user.
  * @param {string} password - The user's account password.
  * @returns {Promise<Object>} - A promise that resolves to the JSON response from the server.
- * @throws {Error} - Throws an error if the server's response status is not "ok".
+ * @throws {Error} - Throws an error if the server's response code indicates failure.
  *
  * @example
  * try {
@@ -18,11 +18,12 @@ import { SERVER_URL } from "./constant.js";
  */
 export async function loginUser(username, password) {
 	const url = new URL(`${SERVER_URL}/login`);
-	url.searchParams.append("user", username);
+	url.searchParams.append("username", username);
 	url.searchParams.append("password", password);
 
 	const response = await fetch(url, {
 		method: "GET",
+		credentials: "include",
 	});
 
 	if (!response.ok) {
