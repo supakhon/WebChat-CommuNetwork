@@ -20,16 +20,17 @@ def get_group_members(group):
     return data_service.get_group_members_by_group_id(group["id"])
 
 
-def get_expected_recipient_count(target_id):
+def get_expected_recipient_count(target_id, include_sender=False):
     """
-    Count users who should receive a message.
+    Count users who should receive a message, excluding the sender unless include_sender is True.
     """
 
     group = get_group_by_id(target_id)
     if group:
-        return len(get_group_members(group))
+        count = len(get_group_members(group))
+        return count if include_sender else count - 1
 
-    return 1
+    return 2 if include_sender else 1
 
 
 def is_user_in_group(user_id, group_id):
@@ -48,6 +49,9 @@ def is_message_for_user(user_id, message):
     """
     Check if a message is for a user.
     """
+
+    if str(message["sender_id"]) == str(user_id):
+        return message.get("include_sender", False)
 
     target_id = message["target_id"]
     if str(target_id) == str(user_id):
@@ -78,7 +82,7 @@ def format_message_response(message):
     }
 
 
-def send_message_service(sender_id, target_id, message_type, content):
+def send_message_service(sender_id, target_id, message_type, content, include_sender=False):
     """
     Store a message and determine the expected recipient count.
     """
@@ -90,7 +94,8 @@ def send_message_service(sender_id, target_id, message_type, content):
         "data": content,
         "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
         "received_by": [],
-        "expected_count": get_expected_recipient_count(target_id),
+        "expected_count": get_expected_recipient_count(target_id, include_sender),
+        "include_sender": include_sender,
     }
 
     MESSAGES.append(message_object)
@@ -142,6 +147,6 @@ def create_group_service(creator_id, users):
         notification_content = f"{creator_username} : Added {added_username}"
 
         # Send as a system message from creator to group
-        send_message_service(creator_id, str(group_id), "text", notification_content)
+        send_message_service(creator_id, str(group_id), "text", notification_content, include_sender=True)
 
     return {"group_id": str(group_id)}

@@ -252,7 +252,7 @@ sendButton.onclick = async (event) => {
 			payloadData
 		);
 		console.log("Success: Message sent", { response: result });
-		alert("Message Sent!");
+		// alert("Message Sent!");
 		updateMessagesDisplay();
 
 		// Cleanup after send
