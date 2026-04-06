@@ -2,27 +2,21 @@ import { SERVER_URL } from "./constant.js";
 
 /**
  * Send a message to the server via POST.
- *
- * @param {string} senderId - Unique identifier for the person sending the message.
- * @param {string|null} groupId - Unique identifier for the group (null if private).
+ * Identity is extracted from cookies on the server side.
+ * 
+ * @param {string|null} targetId - Unique identifier for the person or group receiving the message.
  * @param {'text'|'file'} type - The content type of the message.
  * @param {string|Object} data - Message content (string for text, or {filename, type, data} for file).
  * @returns {Promise<Object>} - A promise resolving to the server's response JSON.
  * @throws {Error} - Throws an error if the status is not ok.
- *
+ * 
  * @example
  * // Sending a text message
- * await sendMessage('alice', null, 'text', 'Hello World!');
- *
- * @example
- * // Sending a file
- * const fileData = { filename: 'pic.png', type: 'image/png', data: 'base64str...' };
- * await sendMessage('alice', 'group_123', 'file', fileData);
+ * await sendMessage('user_123', 'text', 'Hello World!');
  */
-export async function sendMessage(senderId, groupId, type, data) {
+export async function sendMessage(targetId, type, data) {
 	const payload = {
-		user_id: senderId,
-		group_id: groupId,
+		target_id: targetId,
 		type: type,
 		data: data,
 	};
@@ -45,12 +39,41 @@ export async function sendMessage(senderId, groupId, type, data) {
 }
 
 /**
+ * Create a new messaging group.
+ * 
+ * @param {string[]} users - List of all user IDs to include in the group (excluding self).
+ * @returns {Promise<Object>} - A promise resolving to the server's response JSON (e.g., the new group ID).
+ * @throws {Error} - Throws an error if the group creation fails.
+ * 
+ * @example
+ * // Create a group with user2 and user3
+ * const result = await createGroup(['user2', 'user3']);
+ */
+export async function createGroup(users) {
+	const response = await fetch(`${SERVER_URL}/messages/create_group`, {
+		method: "POST",
+		headers: {
+			"Content-Type": "application/json",
+		},
+		body: JSON.stringify({ users }),
+	});
+
+	if (!response.ok) {
+		throw new Error(
+			`Failed to create group with status ${response.status}`,
+		);
+	}
+
+	return await response.json();
+}
+
+/**
  * Fetch leftover messages from the server and persist them in localStorage.
- * Messages are grouped by group_id if available, otherwise by user_id.
- *
+ * Messages are grouped by target_id.
+ * 
  * @returns {Promise<Array>} - A promise resolving to the list of fetched message objects.
  * @throws {Error} - Throws an error if the request fails.
- *
+ * 
  * @example
  * try {
  *   const result = await getLeftOverMessages();
@@ -77,7 +100,7 @@ export async function getLeftOverMessages() {
 	);
 
 	messages.forEach((message) => {
-		const storageKey = message.group_id || message.user_id;
+		const storageKey = message.target_id || message.user_id;
 		const messageData = {
 			user_id: message.user_id,
 			type: message.type,

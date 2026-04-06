@@ -1,6 +1,6 @@
 import { loginUser } from "./scripts/login.js";
 import { signUpUser } from "./scripts/signup.js";
-import { sendMessage, getLeftOverMessages } from "./scripts/chat.js";
+import { sendMessage, getLeftOverMessages, createGroup } from "./scripts/chat.js";
 
 // Login Section
 const loginUsernameInput = document.getElementById("login-username");
@@ -13,28 +13,32 @@ const signupPasswordInput = document.getElementById("signup-password");
 const signupButton = document.getElementById("signup-button");
 
 // Chat Section - Message Input
-const messageSenderIdInput = document.getElementById("message-sender-id");
+const messageTargetIdInput = document.getElementById("message-target-id");
 const messageDataTextarea = document.getElementById("message-data");
 const messageFileInput = document.getElementById("message-file-input");
 const clearFileButton = document.getElementById("clear-file-button");
 const sendButton = document.getElementById("send-button");
 
+// Create Group Section
+const groupUsersInput = document.getElementById("group-users");
+const createGroupButton = document.getElementById("create-group-button");
+
 // Output & Visibility
 const localStoragePane = document.getElementById("local-storage-pane");
 
-// Update localStorage pane with current messages
+// Reads the current 'messages' from localStorage and displays it in the UI.
 function updateMessagesDisplay() {
 	localStoragePane.textContent = localStorage.getItem("messages") || "{}";
 }
 
-// Update clear button visibility
+// Updates the visibility of the Clear button.
 function updateClearButtonVisibility() {
 	const hasFile = messageFileInput.files.length > 0;
 	const hasText = messageDataTextarea.value.length > 0;
 	clearFileButton.style.display = hasFile || hasText ? "inline-block" : "none";
 }
 
-// Polling function to fetch leftover messages every 5 seconds
+// Periodically fetches leftover messages from the server every 5 seconds.
 async function startLeftOverMessagesPolling() {
 	while (true) {
 		try {
@@ -51,6 +55,8 @@ async function startLeftOverMessagesPolling() {
 		await new Promise((resolve) => setTimeout(resolve, 5000));
 	}
 }
+
+// --- Event Handlers ---
 
 // Login
 loginButton.onclick = async () => {
@@ -112,8 +118,7 @@ clearFileButton.onclick = () => {
 
 // Send Message
 sendButton.onclick = async () => {
-	const senderId = messageSenderIdInput.value;
-	const groupId = messageGroupIdInput.value;
+	const targetId = messageTargetIdInput.value;
 	const file = messageFileInput.files[0];
 
 	let payloadData;
@@ -140,14 +145,14 @@ sendButton.onclick = async () => {
 
 	try {
 		const result = await sendMessage(
-			senderId,
-			groupId || null,
+			targetId || null,
 			messageType,
 			payloadData,
 		);
 		console.log("Success: Message sent", { response: result });
 		updateMessagesDisplay();
 
+		// Cleanup after send
 		if (file) {
 			clearFileButton.onclick();
 		}
@@ -156,6 +161,25 @@ sendButton.onclick = async () => {
 	}
 };
 
-// Initialization
+// Create Group
+createGroupButton.onclick = async () => {
+	const rawUsers = groupUsersInput.value;
+	if (!rawUsers) {
+		console.error("Error: No user IDs specified for group");
+		return;
+	}
+
+	// Split by comma and trim whitespace
+	const users = rawUsers.split(",").map((id) => id.trim()).filter((id) => id.length > 0);
+
+	try {
+		const result = await createGroup(users);
+		console.log("Success: Group created", { response: result });
+	} catch (error) {
+		console.error("Group Creation Error:", error.message);
+	}
+};
+
+// --- Initialization ---
 updateMessagesDisplay();
 startLeftOverMessagesPolling();
