@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta
+			name="viewport"
+			content="width=device-width, initial-scale=1.0"
+		/>
+		<title>Chat Test Mock</title>
+	</head>
+
+	<body>
+		<h1>Chat Test Mock</h1>
+
+		<section id="auth-section">
+			<h2>Auth</h2>
+			<div>
+				<h3>Login</h3>
+				<label for="login-username">Username:</label>
+				<input type="text" id="login-username" />
+				<label for="login-password">Password:</label>
+				<input type="password" id="login-password" />
+				<button id="login-button">Login</button>
+			</div>
+			<div>
+				<h3>Signup</h3>
+				<label for="signup-username">Username:</label>
+				<input type="text" id="signup-username" />
+				<label for="signup-password">Password:</label>
+				<input type="password" id="signup-password" />
+				<button id="signup-button">Signup</button>
+			</div>
+		</section>
+
+		<hr />
+
+		<section id="chat-section">
+			<h2>Chat</h2>
+			<div>
+				<h3>Send Message</h3>
+				<label for="message-sender-id">Sender ID:</label>
+				<input type="text" id="message-sender-id" />
+				<label for="message-group-id">Group ID (optional):</label>
+				<input type="text" id="message-group-id" />
+				<label for="message-type">Type:</label>
+				<label for="message-data">Message / File:</label>
+				<textarea
+					id="message-data"
+					placeholder="Type your message here..."
+				></textarea>
+				<input type="file" id="message-file-input" />
+				<button id="clear-file-button" style="display: none">
+					Clear
+				</button>
+				<button id="send-button">Send</button>
+			</div>
+		</section>
+
+		<hr />
+
+		<section id="results">
+			<h3>LocalStorage (messages)</h3>
+			<pre id="local-storage-pane"></pre>
+		</section>
+
+		<script type="module" src="./main.js"></script>
+	</body>
+</html>
