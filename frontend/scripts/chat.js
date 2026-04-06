@@ -14,20 +14,6 @@ import { SERVER_URL } from "./constant.js";
  * // Sending a text message
  * await sendMessage('user_123', 'text', 'Hello World!');
  */
-/**
- * Send a message to the server via POST.
- * Identity is extracted from cookies on the server side.
- *
- * @param {string|null} targetId - Unique identifier for the person or group receiving the message.
- * @param {'text'|'file'} type - The content type of the message.
- * @param {string|Object} data - Message content (string for text, or {filename, type, data} for file).
- * @returns {Promise<Object>} - A promise resolving to the server's response JSON.
- * @throws {Error} - Throws an error if the status is not ok.
- *
- * @example
- * // Sending a text message
- * await sendMessage('user_123', 'text', 'Hello World!');
- */
 export async function sendMessage(targetId, type, data) {
 	const payload = {
 		target_id: targetId,
@@ -67,13 +53,19 @@ export async function sendMessage(targetId, type, data) {
 function saveMessages(messages) {
 	if (!messages || messages.length === 0) return;
 
-	const currentUser = JSON.parse(sessionStorage.getItem("currentUser") || "{}");
+	const currentUser = JSON.parse(
+		sessionStorage.getItem("currentUser") || "{}",
+	);
 	const currentUserId = String(currentUser.id);
 
-	const peerStorage = JSON.parse(localStorage.getItem("messages_peer") || "{}");
-	const groupStorage = JSON.parse(localStorage.getItem("messages_group") || "{}");
+	const peerStorage = JSON.parse(
+		localStorage.getItem("messages_peer") || "{}",
+	);
+	const groupStorage = JSON.parse(
+		localStorage.getItem("messages_group") || "{}",
+	);
 
-	// Helper to check if an ID is a UUID (Group ID)
+	// For check if it's group or peer message
 	const isUuid = (id) =>
 		/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
 			id,
@@ -83,7 +75,6 @@ function saveMessages(messages) {
 		const senderId = String(message.sender_id);
 		const targetId = String(message.target_id);
 
-		// Deduction logic:
 		// If target_id is a UUID, it's a group message.
 		// If it's a simple number (ID), it's a peer message.
 		const isGroup = isUuid(targetId);
@@ -101,8 +92,7 @@ function saveMessages(messages) {
 			}
 			groupStorage[targetId].push(messageData);
 		} else {
-			// It's a peer message. Identify the partner.
-			const partnerId = senderId === currentUserId ? targetId : senderId;
+			let partnerId = senderId === currentUserId ? targetId : senderId;
 			if (!peerStorage[partnerId]) {
 				peerStorage[partnerId] = [];
 			}

@@ -1,5 +1,3 @@
-import os
-import sys
 from flask import Flask
 from flask_cors import CORS
 from services import data_service as data
