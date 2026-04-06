@@ -4,7 +4,9 @@ import uuid
 
 # ===== Database Section ===== #
 def get_db():
-    return sqlite3.connect("database.db")
+    conn = sqlite3.connect("database.db")
+    conn.row_factory = sqlite3.Row
+    return conn
 
 
 def init_db():
@@ -89,7 +91,7 @@ def get_token(username, password):
 
     if user:
         token = str(uuid.uuid4())
-        db_command.execute("UPDATE users SET token=? WHERE id=?", (token, user[0]))
+        db_command.execute("UPDATE users SET token=? WHERE id=?", (token, user["id"]))
         database.commit()
         database.close()
         return token
@@ -98,17 +100,11 @@ def get_token(username, password):
         return None
 
 
-# ===== Chat Section ===== #
-def get_user_from_cookies(cookies):
+# ===== User Section ===== #
+def get_user_by_token(token):
     """
-    get User from cookies
-
-    เอา User มา โดยอึงจาก Cookies ที่ Set ไว้ที่ Browser
-
-    `cookies = request.cookies.get("[remember_token]")`
+    Fetch user information by session token.
     """
-
-    token = cookies
     if not token:
         return None
 
@@ -183,7 +179,7 @@ def get_group_by_id(group_id):
     database.close()
 
     if group:
-        return {"id": str(group[0]), "creator_id": group[1]}
+        return {"id": str(group["id"]), "creator_id": group["creator_id"]}
     return None
 
 
@@ -198,4 +194,4 @@ def get_group_members_by_group_id(group_id):
     members = db_command.fetchall()
     database.close()
 
-    return [str(member[0]) for member in members]
+    return [str(member["user_id"]) for member in members]

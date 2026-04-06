@@ -1,35 +1,21 @@
-import { SERVER_URL } from "./constant.js";
+import { apiFetch } from "./api.js";
 
 export async function getCurrentUser() {
-    const response = await fetch(`${SERVER_URL}/user`, {
-        method: "GET",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        credentials: "include",
-    });
-
-    if (!response.ok) {
-        throw new Error("Failed to fetch user info");
-    }
-
-    const user = await response.json();
+    const user = await apiFetch("/user");
     sessionStorage.setItem("currentUser", JSON.stringify(user));
     return user;
 }
 
 export async function searchUsers(search_query) {
-    const response = await fetch(`${SERVER_URL}/user/search?query=${search_query}`, {
-        method: "GET",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        credentials: "include",
-    });
+    return await apiFetch(`/user/search?query=${search_query}`);
+}
 
-    if (!response.ok) {
-        throw new Error("Failed to search users");
-    }
-
-    return await response.json();
+export async function logoutUser() {
+    const result = await apiFetch("/user/logout");
+    
+    // Clear auth data
+    localStorage.removeItem("auth_token");
+    sessionStorage.removeItem("currentUser");
+    
+    return result;
 }

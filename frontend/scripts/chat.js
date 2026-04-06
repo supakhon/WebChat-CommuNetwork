@@ -1,4 +1,4 @@
-import { SERVER_URL } from "./constant.js";
+import { apiFetch } from "./api.js";
 
 /**
  * Send a message to the server via POST.
@@ -21,22 +21,11 @@ export async function sendMessage(targetId, type, data) {
 		data: data,
 	};
 
-	const response = await fetch(`${SERVER_URL}/message/send`, {
+	const result = await apiFetch("/message/send", {
 		method: "POST",
-		headers: {
-			"Content-Type": "application/json",
-		},
 		body: JSON.stringify(payload),
-		credentials: "include",
 	});
 
-	if (!response.ok) {
-		throw new Error(
-			`Failed to send message with status ${response.status}`,
-		);
-	}
-
-	const result = await response.json();
 	if (result.message) {
 		saveMessages([result.message]);
 	}
@@ -116,22 +105,10 @@ function saveMessages(messages) {
  * const result = await createGroup(['user2', 'user3']);
  */
 export async function createGroup(users) {
-	const response = await fetch(`${SERVER_URL}/message/create_group`, {
+	return await apiFetch("/message/create_group", {
 		method: "POST",
-		headers: {
-			"Content-Type": "application/json",
-		},
 		body: JSON.stringify({ users }),
-		credentials: "include",
 	});
-
-	if (!response.ok) {
-		throw new Error(
-			`Failed to create group with status ${response.status}`,
-		);
-	}
-
-	return await response.json();
 }
 
 /**
@@ -150,20 +127,7 @@ export async function createGroup(users) {
  * }
  */
 export async function getPendingMessages() {
-	const response = await fetch(`${SERVER_URL}/message/get_pending`, {
-		method: "GET",
-		credentials: "include",
-	});
-
-	if (!response.ok) {
-		throw new Error(
-			`Failed to get pending messages with status ${response.status}`,
-		);
-	}
-
-	const messages = await response.json();
-
+	const messages = await apiFetch("/message/get_pending");
 	saveMessages(messages);
-
 	return messages;
 }

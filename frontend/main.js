@@ -5,7 +5,7 @@ import {
 	createGroup,
 	getPendingMessages,
 } from "./scripts/chat.js";
-import { getCurrentUser, searchUsers } from "./scripts/user.js";
+import { getCurrentUser, searchUsers, logoutUser } from "./scripts/user.js";
 
 // Login Section
 const loginUsernameInput = document.getElementById("login-username");
@@ -34,6 +34,7 @@ const userInfoDisplay = document.getElementById("user-info-display");
 const searchQueryInput = document.getElementById("search-query");
 const searchButton = document.getElementById("search-button");
 const searchResultsList = document.getElementById("search-results-list");
+const logoutButton = document.getElementById("logout-button");
 
 // Output & Visibility
 const messagesDisplayPanel = document.getElementById("messages-display-panel");
@@ -132,18 +133,21 @@ function updateClearButtonVisibility() {
 // Periodically fetches pending messages from the server every 1 seconds.
 async function startPendingMessagesPolling() {
 	while (true) {
-		try {
-			const messages = await getPendingMessages();
-			if (messages.length > 0) {
-				console.log("System: Pending messages fetched", {
-					count: messages.length,
-				});
-				updateMessagesDisplay();
+		const token = localStorage.getItem("auth_token");
+		if (token) {
+			try {
+				const messages = await getPendingMessages();
+				if (messages.length > 0) {
+					console.log("System: Pending messages fetched", {
+						count: messages.length,
+					});
+					updateMessagesDisplay();
+				}
+			} catch (error) {
+				console.warn("Polling Warning:", error.message);
 			}
-		} catch (error) {
-			console.error("System Error:", error.message);
 		}
-		await new Promise((resolve) => setTimeout(resolve, 200));
+		await new Promise((resolve) => setTimeout(resolve, 1000));
 	}
 }
 
@@ -303,6 +307,19 @@ getUserButton.onclick = async () => {
 	}
 };
 
+// Logout
+logoutButton.onclick = async () => {
+	try {
+		await logoutUser();
+		userInfoDisplay.textContent = "Logged out.";
+		console.log("Success: Logged out");
+		alert("Logout Success!");
+	} catch (error) {
+		console.error("Logout Error:", error.message);
+		alert("Logout Failed: " + error.message);
+	}
+};
+
 // Search Users
 searchButton.onclick = async () => {
 	const query = searchQueryInput.value;
@@ -334,5 +351,8 @@ clearMessagesButton.onclick = () => {
 // --- Initialization ---
 updateMessagesDisplay();
 startPendingMessagesPolling();
-getUserButton.click(); // Fetch current user on page load
-searchButton.click(); // Show all users on page load (empty query)
+
+if (localStorage.getItem("auth_token")) {
+	getUserButton.click(); // Fetch current user on page load
+	searchButton.click(); // Show all users on page load (empty query)
+}

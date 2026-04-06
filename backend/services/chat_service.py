@@ -137,12 +137,12 @@ def create_group_service(creator_id, users):
 
     # Fetch creator username for notifications
     creator_user = data_service.get_user_by_id(creator_id)
-    creator_username = creator_user[1] if creator_user else "Unknown"
+    creator_username = creator_user["username"] if creator_user else "Unknown"
 
     # Send notification messages to the group
     for user_id in users:
         added_user = data_service.get_user_by_id(user_id)
-        added_username = added_user[1] if added_user else "Unknown"
+        added_username = added_user["username"] if added_user else "Unknown"
 
         notification_content = f"{creator_username} : Added {added_username}"
 

@@ -4,30 +4,33 @@ from services.auth_service import login, signup
 auth_router = Blueprint("auth", __name__)
 
 
-@auth_router.route("/login", methods=["GET"])
+@auth_router.route("/login", methods=["POST"])
 def login_handler():
     """
-    Handle user login via search parameters.
-    Sets a 'remember_token' cookie on success.
+    Handle user login via JSON body.
+    Returns a session token on success.
     """
-    username = request.args.get("username")
-    password = request.args.get("password")
+    data = request.json
+    username = data.get("username")
+    password = data.get("password")
     token = login(username, password)
     if token:
-        response = make_response(jsonify({"message": "Login Success"}))
-        response.set_cookie("remember_token", token)
-        return response
+        return jsonify({
+            "token": token,
+            "message": "Login Success"
+        })
     else:
         return jsonify({"error": "Invalid Username or Password"}), 401
 
 
-@auth_router.route("/signup", methods=["GET"])
+@auth_router.route("/signup", methods=["POST"])
 def signup_handler():
     """
-    Handle user registration via search parameters.
+    Handle user registration via JSON body.
     """
-    username = request.args.get("username")
-    password = request.args.get("password")
+    data = request.json
+    username = data.get("username")
+    password = data.get("password")
     if not username or not password:
         return jsonify({"error": "Username and password required"}), 400
 

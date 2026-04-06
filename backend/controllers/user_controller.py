@@ -1,20 +1,27 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, make_response
 from services.user_service import get_user_info, search_users_list
+from utils.auth_utils import get_current_user
 
 user_router = Blueprint("user", __name__)
 
 
 @user_router.route("/user", methods=["GET"])
 def user_info_handler():
-    token = request.cookies.get("remember_token")
-    if not token:
+    user = get_current_user()
+    if user:
+        return jsonify({"id": user["id"], "username": user["username"]})
+    else:
         return jsonify({"error": "Unauthorized"}), 401
 
-    user = get_user_info(token)
-    if user:
-        return jsonify(user)
-    else:
-        return jsonify({"error": "User not found"}), 404
+
+@user_router.route("/user/logout", methods=["GET"])
+def logout_handler():
+    """
+    Handle user logout by clearing the 'remember_token' cookie.
+    """
+    response = make_response(jsonify({"message": "Logout Success"}))
+    response.set_cookie("remember_token", "", expires=0)
+    return response
 
 
 @user_router.route("/user/search", methods=["GET"])

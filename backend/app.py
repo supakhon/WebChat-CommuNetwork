@@ -13,7 +13,7 @@ def create_app():
     """
     app = Flask(__name__)
 
-    CORS(app, supports_credentials=True)
+    CORS(app)
 
     data.init_db()
 
